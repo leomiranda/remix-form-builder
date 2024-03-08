@@ -10,9 +10,11 @@ import {
 } from '@remix-run/react';
 import { rootAuthLoader } from '@clerk/remix/ssr.server';
 import { ClerkApp, ClerkErrorBoundary } from '@clerk/remix';
+import styles from './tailwind.css';
 
 export const links: LinksFunction = () => [
 	...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : []),
+	{ rel: 'stylesheet', href: styles },
 ];
 
 export const loader: LoaderFunction = (args) => rootAuthLoader(args);
