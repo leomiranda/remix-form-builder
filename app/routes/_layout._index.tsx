@@ -14,7 +14,15 @@ export const loader: LoaderFunction = async (args) => {
 		secretKey: process.env.CLERK_SECRET_KEY,
 	}).users.getUser(userId);
 
-	return json({ user });
+	return json({
+		user: {
+			id: user.id,
+			email: user.emailAddresses[0].emailAddress,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			imageUrl: user.imageUrl,
+		},
+	});
 };
 
 export default function HomeIndex() {
