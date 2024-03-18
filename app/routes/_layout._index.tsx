@@ -12,6 +12,7 @@ import {
 	PersonIcon,
 } from '@radix-ui/react-icons';
 import { Skeleton } from '~/components/ui/skeleton';
+import { Separator } from '~/components/ui/separator';
 
 export const loader: LoaderFunction = async (args) => {
 	const { userId } = await getAuth(args);
@@ -47,7 +48,7 @@ export const loader: LoaderFunction = async (args) => {
 };
 
 export default function HomeIndex() {
-	const { user, stats } = useLoaderData<typeof loader>();
+	const { stats } = useLoaderData<typeof loader>();
 
 	return (
 		<div className="container pt-4">
@@ -58,8 +59,9 @@ export default function HomeIndex() {
 					)}
 				</Await>
 			</Suspense>
-			<p>Hello {user.firstName}</p>
-			<p>{stats.visits}</p>
+			<Separator className="my-6" />
+			<h2 className="text-4xl font-bold col-span-2">Your Forms</h2>
+			<Separator className="my-6" />
 		</div>
 	);
 }
