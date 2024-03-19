@@ -1,6 +1,6 @@
 import { db } from '~/utils/db.server';
 
-export async function getFormStats(userId) {
+export async function getFormStats(userId: string) {
 	const stats = await db.form.aggregate({
 		where: {
 			userId,
