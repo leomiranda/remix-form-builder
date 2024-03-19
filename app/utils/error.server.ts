@@ -12,14 +12,18 @@
  * @throws {Response} if condition is falsey
  */
 export function invariantResponse(
-  condition: any,
-  message?: string | (() => string),
-  responseInit?: ResponseInit,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	condition: any,
+	message?: string | (() => string),
+	responseInit?: ResponseInit
 ): asserts condition {
-  if (!condition) {
-    throw new Response(typeof message === 'function' ? message() : message || 'Error', {
-      status: 400,
-      ...responseInit,
-    });
-  }
+	if (!condition) {
+		throw new Response(
+			typeof message === 'function' ? message() : message || 'Error',
+			{
+				status: 400,
+				...responseInit,
+			}
+		);
+	}
 }
