@@ -27,23 +27,17 @@ import { invariantResponse } from '~/utils/error.server';
 export const loader: LoaderFunction = async (args) => {
 	const { userId } = await getAuth(args);
 
-	if (!userId) {
-		return redirect('/sign-in?redirect_url=' + args.request.url);
-	}
+	invariantResponse(userId, 'User not found');
 
 	const user = await createClerkClient({
 		secretKey: process.env.CLERK_SECRET_KEY,
 	}).users.getUser(userId);
 
-	if (!user) {
-		return redirect('/sign-in?redirect_url=' + args.request.url);
-	}
+	invariantResponse(user, 'User not found');
 
 	const stats = getFormStats(userId);
 
-	if (!stats) {
-		return redirect('/sign-in?redirect_url=' + args.request.url);
-	}
+	invariantResponse(stats, 'Stats not found');
 
 	return defer({
 		user: {
