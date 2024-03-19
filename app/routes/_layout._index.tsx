@@ -1,18 +1,28 @@
-import { getAuth } from '@clerk/remix/ssr.server';
-import { LoaderFunction, defer, redirect } from '@remix-run/node';
 import { createClerkClient } from '@clerk/remix/api.server';
-import { useLoaderData, Await } from '@remix-run/react';
-import { getFormStats } from '~/modules/form/db/form.db.server';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { Suspense } from 'react';
+import { getAuth } from '@clerk/remix/ssr.server';
 import {
 	ArrowDownIcon,
 	ArrowUpIcon,
 	EnvelopeClosedIcon,
 	PersonIcon,
 } from '@radix-ui/react-icons';
-import { Skeleton } from '~/components/ui/skeleton';
+import {
+	ActionFunctionArgs,
+	LoaderFunction,
+	defer,
+	json,
+	redirect,
+} from '@remix-run/node';
+import { Await, useLoaderData } from '@remix-run/react';
+import { Suspense } from 'react';
+import { getValidatedFormData } from 'remix-hook-form';
+import { CreateFormButton } from '~/components/CreateFormButton';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Separator } from '~/components/ui/separator';
+import { Skeleton } from '~/components/ui/skeleton';
+import { createForm, getFormStats } from '~/modules/form/db/form.db.server';
+import { createFormSchemaType, resolverCreateForm } from '~/schemas/form';
+import { invariantResponse } from '~/utils/error.server';
 
 export const loader: LoaderFunction = async (args) => {
 	const { userId } = await getAuth(args);
@@ -62,6 +72,7 @@ export default function HomeIndex() {
 			<Separator className="my-6" />
 			<h2 className="text-4xl font-bold col-span-2">Your Forms</h2>
 			<Separator className="my-6" />
+			<CreateFormButton />
 		</div>
 	);
 }
@@ -146,3 +157,34 @@ function StatsCard({
 		</Card>
 	);
 }
+
+export const action = async (args: ActionFunctionArgs) => {
+	const { request } = args;
+	const {
+		errors,
+		data,
+		receivedValues: defaultValues,
+	} = await getValidatedFormData<createFormSchemaType>(
+		request,
+		resolverCreateForm
+	);
+
+	if (errors) {
+		return json({ errors, defaultValues, success: false });
+	}
+
+	const { userId } = await getAuth(args);
+
+	invariantResponse(userId, 'User not found');
+
+	const { name, description } = data;
+
+	invariantResponse(typeof name === 'string', 'Form name is required');
+
+	const form = await createForm({ userId, name, description });
+	console.log('🚀 ~ action ~ form:', form);
+
+	invariantResponse(form, 'Form not created');
+
+	return json({ success: true });
+};
