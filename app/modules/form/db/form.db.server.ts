@@ -1,3 +1,4 @@
+import { createFormSchemaType } from '~/schemas/form';
 import { db } from '~/utils/db.server';
 
 export async function getFormStats(userId: string) {
@@ -29,4 +30,18 @@ export async function getFormStats(userId: string) {
 		submissionRate,
 		bounceRate,
 	};
+}
+
+export async function createForm(
+	data: createFormSchemaType & { userId: string }
+) {
+	const { userId, name, description } = data;
+
+	return await db.form.create({
+		data: {
+			userId,
+			name,
+			description,
+		},
+	});
 }
