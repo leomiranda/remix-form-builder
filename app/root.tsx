@@ -19,6 +19,7 @@ import {
 	useTheme,
 } from 'remix-themes';
 import { themeSessionResolver } from './sessions.server';
+import { Toaster } from './components/ui/toaster';
 
 export const links: LinksFunction = () => [
 	...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : []),
@@ -48,6 +49,7 @@ function App() {
 			</head>
 			<body>
 				<Outlet />
+				<Toaster />
 				<ScrollRestoration />
 				<Scripts />
 				<LiveReload />
