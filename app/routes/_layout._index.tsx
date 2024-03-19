@@ -1,20 +1,18 @@
 import { createClerkClient } from '@clerk/remix/api.server';
 import { getAuth } from '@clerk/remix/ssr.server';
-import {
-	ArrowDownIcon,
-	ArrowUpIcon,
-	EnvelopeClosedIcon,
-	PersonIcon,
-} from '@radix-ui/react-icons';
+
 import {
 	ActionFunctionArgs,
 	LoaderFunction,
 	defer,
 	json,
-	redirect,
 } from '@remix-run/node';
 import { Await, useLoaderData } from '@remix-run/react';
 import { Suspense } from 'react';
+import { FaWpforms } from 'react-icons/fa';
+import { HiCursorClick } from 'react-icons/hi';
+import { LuView } from 'react-icons/lu';
+import { TbArrowBounce } from 'react-icons/tb';
 import { getValidatedFormData } from 'remix-hook-form';
 import { CreateFormButton } from '~/components/CreateFormButton';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
@@ -83,7 +81,7 @@ function StatsCards({ data, loading }: StatsCardProps) {
 				helperText="All time form visits"
 				loading={loading}
 				className="shadow-md shadow-gray-100 dark:shadow-black"
-				icon={<PersonIcon />}
+				icon={<LuView className="text-blue-600" />}
 			/>
 			<StatsCard
 				title="Total submissions"
@@ -91,7 +89,7 @@ function StatsCards({ data, loading }: StatsCardProps) {
 				helperText="All time form submissions"
 				loading={loading}
 				className="shadow-md shadow-gray-100 dark:shadow-black"
-				icon={<EnvelopeClosedIcon />}
+				icon={<FaWpforms className="text-yellow-600" />}
 			/>
 			<StatsCard
 				title="Submission rate"
@@ -99,7 +97,7 @@ function StatsCards({ data, loading }: StatsCardProps) {
 				helperText="Visits that resulted in a submission"
 				loading={loading}
 				className="shadow-md shadow-gray-100 dark:shadow-black"
-				icon={<ArrowUpIcon />}
+				icon={<HiCursorClick className="text-green-600" />}
 			/>
 			<StatsCard
 				title="Bounce rate"
@@ -107,7 +105,7 @@ function StatsCards({ data, loading }: StatsCardProps) {
 				helperText="Visits that left without submitting"
 				loading={loading}
 				className="shadow-md shadow-gray-100 dark:shadow-black"
-				icon={<ArrowDownIcon />}
+				icon={<TbArrowBounce className="text-red-600" />}
 			/>
 		</div>
 	);
