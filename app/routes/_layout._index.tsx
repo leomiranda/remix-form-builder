@@ -6,6 +6,7 @@ import {
 	LoaderFunction,
 	defer,
 	json,
+	redirect,
 } from '@remix-run/node';
 import { Await, useLoaderData } from '@remix-run/react';
 import { Suspense } from 'react';
@@ -25,7 +26,9 @@ import { invariantResponse } from '~/utils/error.server';
 export const loader: LoaderFunction = async (args) => {
 	const { userId } = await getAuth(args);
 
-	invariantResponse(userId, 'User not found');
+	if (!userId) {
+		return redirect('/sign-in');
+	}
 
 	const user = await createClerkClient({
 		secretKey: process.env.CLERK_SECRET_KEY,
