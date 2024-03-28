@@ -1,5 +1,10 @@
+import { Form, useActionData } from '@remix-run/react';
+import { useEffect, useState } from 'react';
 import { ImSpinner2 } from 'react-icons/im';
+import { useRemixForm } from 'remix-hook-form';
+import { action as indexAction } from '~/routes/_layout._index';
 import { createFormSchemaType, resolverCreateForm } from '~/schemas/form';
+import { useHydrated } from '~/utils/hooks/useHydrated';
 import { Button } from './ui/button';
 import {
 	Dialog,
@@ -11,12 +16,8 @@ import {
 	DialogTrigger,
 } from './ui/dialog';
 import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
-import { useRemixForm } from 'remix-hook-form';
-import { Form, useActionData } from '@remix-run/react';
 import { Label } from './ui/label';
-import { action as indexAction } from '~/routes/_layout._index';
-import { useEffect, useState } from 'react';
+import { Textarea } from './ui/textarea';
 import { toast } from './ui/use-toast';
 
 export function CreateFormButton() {
@@ -35,6 +36,7 @@ export function CreateFormButton() {
 	});
 	const actionData = useActionData<typeof indexAction>();
 	const [dialogOpen, setDialogOpen] = useState(false);
+	const isHydrated = useHydrated();
 
 	useEffect(() => {
 		if (!actionData) return;
@@ -67,11 +69,17 @@ export function CreateFormButton() {
 					</DialogDescription>
 				</DialogHeader>
 				<div className="flex flex-col gap-4 py-4">
-					<Form onSubmit={handleSubmit}>
+					<Form onSubmit={handleSubmit} noValidate={isHydrated}>
 						<div className="mb-4">
-							<Label htmlFor="name">
+							<Label>
 								Name:
-								<Input type="text" {...register('name')} autoComplete="off" />
+								<Input
+									type="text"
+									{...register('name')}
+									autoComplete="off"
+									required
+									maxLength={100}
+								/>
 								{errors.name && (
 									<p className="mt-2 mb-4 text-rose-600">
 										{errors.name.message}
@@ -80,9 +88,9 @@ export function CreateFormButton() {
 							</Label>
 						</div>
 						<div className="mb-4">
-							<Label htmlFor="description">
+							<Label>
 								Description:
-								<Textarea {...register('description')} />
+								<Textarea {...register('description')} maxLength={1000} />
 								{errors.description && <p>{errors.description.message}</p>}
 							</Label>
 						</div>
