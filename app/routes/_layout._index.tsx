@@ -1,5 +1,6 @@
 import { createClerkClient } from '@clerk/remix/api.server';
 import { getAuth } from '@clerk/remix/ssr.server';
+import { parseWithZod } from '@conform-to/zod';
 
 import {
 	ActionFunctionArgs,
@@ -14,13 +15,12 @@ import { FaWpforms } from 'react-icons/fa';
 import { HiCursorClick } from 'react-icons/hi';
 import { LuView } from 'react-icons/lu';
 import { TbArrowBounce } from 'react-icons/tb';
-import { getValidatedFormData } from 'remix-hook-form';
 import { CreateFormButton } from '~/components/CreateFormButton';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Separator } from '~/components/ui/separator';
 import { Skeleton } from '~/components/ui/skeleton';
 import { createForm, getFormStats } from '~/modules/form/db/form.db.server';
-import { createFormSchemaType, resolverCreateForm } from '~/schemas/form';
+import { createFormSchema } from '~/schemas/form';
 import { invariantResponse } from '~/utils/error.server';
 
 export const loader: LoaderFunction = async (args) => {
@@ -153,33 +153,31 @@ function StatsCard({
 	);
 }
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
 	const { request } = args;
-	const {
-		errors,
-		data,
-		receivedValues: defaultValues,
-	} = await getValidatedFormData<createFormSchemaType>(
-		request,
-		resolverCreateForm
-	);
+	const formData = await request.formData();
+	const submission = parseWithZod(formData, {
+		schema: createFormSchema,
+	});
 
-	if (errors) {
-		return json({ errors, defaultValues, success: false });
+	if (submission.status !== 'success') {
+		return json(
+			{ result: submission.reply() },
+			{ status: submission.status === 'error' ? 400 : 200 }
+		);
 	}
 
 	const { userId } = await getAuth(args);
 
 	invariantResponse(userId, 'User not found');
 
-	const { name, description } = data;
+	const { name, description } = submission.value;
 
 	invariantResponse(typeof name === 'string', 'Form name is required');
 
 	const form = await createForm({ userId, name, description });
-	console.log('🚀 ~ action ~ form:', form);
 
 	invariantResponse(form, 'Form not created');
 
-	return json({ success: true });
-};
+	return json({ result: submission.reply() });
+}
