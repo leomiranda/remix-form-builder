@@ -8,7 +8,7 @@ import { getZodConstraint, parseWithZod } from '@conform-to/zod';
 import { Form, useActionData } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import { ImSpinner2 } from 'react-icons/im';
-import { action as indexAction } from '~/routes/_layout._index';
+import { action as indexAction } from '~/routes/_dashboard._index';
 import { createFormSchema } from '~/schemas/form';
 import { useIsSubmitting } from '~/utils/hooks/useIsSubmitting';
 import { Button } from './ui/button';
@@ -25,6 +25,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { toast } from './ui/use-toast';
+import { ErrorList } from './ErrorList';
 
 export function CreateFormButton() {
 	const actionData = useActionData<typeof indexAction>();
@@ -75,22 +76,20 @@ export function CreateFormButton() {
 							<Label>
 								Name:
 								<Input {...getInputProps(fields.name, { type: 'text' })} />
-								{fields.name?.errors && (
-									<p className="mt-2 mb-4 text-rose-600">
-										{fields.name?.errors}
-									</p>
-								)}
+								<ErrorList id={fields.name.id} errors={fields.name?.errors} />
 							</Label>
 						</div>
 						<div className="mb-4">
 							<Label>
 								Description:
 								<Textarea {...getTextareaProps(fields.description)} />
-								{fields.description?.errors && (
-									<p>{fields.description?.errors}</p>
-								)}
+								<ErrorList
+									id={fields.description.id}
+									errors={fields.description?.errors}
+								/>
 							</Label>
 						</div>
+						<ErrorList id={form.id} errors={form.errors} />
 						<DialogFooter className="mt-6">
 							<Button
 								form={form.id}
