@@ -1,10 +1,16 @@
+import {
+	getFormProps,
+	getInputProps,
+	getTextareaProps,
+	useForm,
+} from '@conform-to/react';
+import { getZodConstraint, parseWithZod } from '@conform-to/zod';
 import { Form, useActionData } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import { ImSpinner2 } from 'react-icons/im';
-import { useRemixForm } from 'remix-hook-form';
 import { action as indexAction } from '~/routes/_layout._index';
-import { createFormSchemaType, resolverCreateForm } from '~/schemas/form';
-import { useHydrated } from '~/utils/hooks/useHydrated';
+import { createFormSchema } from '~/schemas/form';
+import { useIsSubmitting } from '~/utils/hooks/useIsSubmitting';
 import { Button } from './ui/button';
 import {
 	Dialog,
@@ -21,33 +27,28 @@ import { Textarea } from './ui/textarea';
 import { toast } from './ui/use-toast';
 
 export function CreateFormButton() {
-	const {
-		handleSubmit,
-		formState: { errors, isSubmitting },
-		register,
-		reset,
-	} = useRemixForm<createFormSchemaType>({
-		mode: 'onSubmit',
-		resolver: resolverCreateForm,
-		defaultValues: {
-			name: '',
-			description: '',
-		},
-	});
 	const actionData = useActionData<typeof indexAction>();
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const isHydrated = useHydrated();
+	const isSubmitting = useIsSubmitting();
+	const [form, fields] = useForm({
+		lastResult: actionData?.result,
+		constraint: getZodConstraint(createFormSchema),
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: createFormSchema });
+		},
+		shouldValidate: 'onBlur',
+	});
 
 	useEffect(() => {
+		console.log('🚀 ~ useEffect ~ actionData:', actionData);
 		if (!actionData) return;
-		if (actionData?.success) {
-			reset();
+		if (actionData?.result?.status === 'success') {
 			toast({
 				title: 'Success',
 				description: 'Form created successfully',
 			});
 			setDialogOpen(false);
-		} else if (!actionData?.success) {
+		} else {
 			toast({
 				title: 'Error',
 				description: 'Something went wrong, please try again later',
@@ -69,20 +70,14 @@ export function CreateFormButton() {
 					</DialogDescription>
 				</DialogHeader>
 				<div className="flex flex-col gap-4 py-4">
-					<Form onSubmit={handleSubmit} noValidate={isHydrated}>
+					<Form method="post" {...getFormProps(form)}>
 						<div className="mb-4">
 							<Label>
 								Name:
-								<Input
-									type="text"
-									{...register('name')}
-									autoComplete="off"
-									required
-									maxLength={100}
-								/>
-								{errors.name && (
+								<Input {...getInputProps(fields.name, { type: 'text' })} />
+								{fields.name?.errors && (
 									<p className="mt-2 mb-4 text-rose-600">
-										{errors.name.message}
+										{fields.name?.errors}
 									</p>
 								)}
 							</Label>
@@ -90,12 +85,19 @@ export function CreateFormButton() {
 						<div className="mb-4">
 							<Label>
 								Description:
-								<Textarea {...register('description')} maxLength={1000} />
-								{errors.description && <p>{errors.description.message}</p>}
+								<Textarea {...getTextareaProps(fields.description)} />
+								{fields.description?.errors && (
+									<p>{fields.description?.errors}</p>
+								)}
 							</Label>
 						</div>
 						<DialogFooter className="mt-6">
-							<Button type="submit" disabled={isSubmitting} className="w-full">
+							<Button
+								form={form.id}
+								type="submit"
+								disabled={isSubmitting}
+								className="w-full"
+							>
 								{isSubmitting && <ImSpinner2 className="animate-spin" />}
 								{!isSubmitting && <>Save</>}
 							</Button>
