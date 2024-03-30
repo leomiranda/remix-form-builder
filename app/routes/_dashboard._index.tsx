@@ -9,9 +9,12 @@ import {
 	json,
 	redirect,
 } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
 import { Dashboard } from '~/components/Dashboard/Dashboard';
-import { createForm, getFormStats } from '~/modules/form/db/form.db.server';
+import {
+	createForm,
+	getFormStats,
+	getForms,
+} from '~/modules/form/db/form.db.server';
 import { createFormSchema } from '~/schemas/form';
 import { invariantResponse } from '~/utils/error.server';
 
@@ -32,6 +35,8 @@ export const loader: LoaderFunction = async (args) => {
 
 	invariantResponse(stats, 'Stats not found');
 
+	const forms = await getForms(userId);
+
 	return defer({
 		user: {
 			id: user.id,
@@ -41,8 +46,13 @@ export const loader: LoaderFunction = async (args) => {
 			imageUrl: user.imageUrl,
 		},
 		stats,
+		forms,
 	});
 };
+
+export default function Component() {
+	return <Dashboard />;
+}
 
 export async function action(args: ActionFunctionArgs) {
 	const { request } = args;
@@ -53,7 +63,7 @@ export async function action(args: ActionFunctionArgs) {
 
 	if (submission.status !== 'success') {
 		return json(
-			{ result: submission.reply() },
+			{ result: submission.reply(), formId: null },
 			{ status: submission.status === 'error' ? 400 : 200 }
 		);
 	}
@@ -70,11 +80,5 @@ export async function action(args: ActionFunctionArgs) {
 
 	invariantResponse(form, 'Form not created');
 
-	return json({ result: submission.reply() });
-}
-
-export default function Component() {
-	const { stats } = useLoaderData<typeof loader>();
-
-	return <Dashboard stats={stats} />;
+	return json({ result: submission.reply(), formId: form.id });
 }

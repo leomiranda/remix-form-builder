@@ -1,4 +1,4 @@
-import { createFormSchemaType } from '~/schemas/form';
+import { CreateFormSchemaType } from '~/schemas/form';
 import { db } from '~/utils/db.server';
 
 export async function getFormStats(userId: string) {
@@ -33,7 +33,7 @@ export async function getFormStats(userId: string) {
 }
 
 export async function createForm(
-	data: createFormSchemaType & { userId: string }
+	data: CreateFormSchemaType & { userId: string }
 ) {
 	const { userId, name, description } = data;
 
@@ -42,6 +42,18 @@ export async function createForm(
 			userId,
 			name,
 			description,
+		},
+	});
+}
+
+export async function getForms(userId: string) {
+	setTimeout(() => {
+		console.log('Delayed for 1 second.');
+	}, 1000);
+
+	return await db.form.findMany({
+		where: {
+			userId,
 		},
 	});
 }

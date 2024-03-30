@@ -5,13 +5,13 @@ import {
 	useForm,
 } from '@conform-to/react';
 import { getZodConstraint, parseWithZod } from '@conform-to/zod';
-import { Form, useActionData } from '@remix-run/react';
+import { Form, useActionData, useNavigate } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import { ImSpinner2 } from 'react-icons/im';
 import { action as indexAction } from '~/routes/_dashboard._index';
 import { createFormSchema } from '~/schemas/form';
 import { useIsSubmitting } from '~/utils/hooks/useIsSubmitting';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import {
 	Dialog,
 	DialogContent,
@@ -20,14 +20,16 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from './ui/dialog';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { toast } from './ui/use-toast';
-import { ErrorList } from './ErrorList';
+} from '../ui/dialog';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import { toast } from '../ui/use-toast';
+import { ErrorList } from '../ErrorList';
+import { BsFileEarmarkPlus } from 'react-icons/bs';
 
 export function CreateFormButton() {
+	const navigate = useNavigate();
 	const actionData = useActionData<typeof indexAction>();
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const isSubmitting = useIsSubmitting();
@@ -49,6 +51,7 @@ export function CreateFormButton() {
 				description: 'Form created successfully',
 			});
 			setDialogOpen(false);
+			navigate('/builder/' + actionData?.formId);
 		} else {
 			toast({
 				title: 'Error',
@@ -61,7 +64,15 @@ export function CreateFormButton() {
 	return (
 		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 			<DialogTrigger asChild>
-				<Button>Create new form</Button>
+				<Button
+					variant={'outline'}
+					className="group border border-primary/20 h-[190px] flex-col hover:border-primary hover:cursor-pointer border-dashed gap-4"
+				>
+					<BsFileEarmarkPlus className="font-bold text-xl text-muted-foreground" />
+					<p className="font-bold text-xl text-muted-foreground group-hover:text-primary">
+						Create new form
+					</p>
+				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
