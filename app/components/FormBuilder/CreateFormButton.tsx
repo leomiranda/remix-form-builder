@@ -8,7 +8,7 @@ import { getZodConstraint, parseWithZod } from '@conform-to/zod';
 import { Form, useActionData, useNavigate } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import { ImSpinner2 } from 'react-icons/im';
-import { action as indexAction } from '~/routes/_dashboard._index';
+import { action as indexAction } from '~/routes/_dashboard+/_index';
 import { createFormSchema } from '~/schemas/form';
 import { useIsSubmitting } from '~/utils/hooks/useIsSubmitting';
 import { Button } from '../ui/button';

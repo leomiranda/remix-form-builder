@@ -3,7 +3,7 @@ import { Await, useLoaderData } from '@remix-run/react';
 import { Separator } from '~/components/ui/separator';
 import { CreateFormButton } from '~/components/FormBuilder/CreateFormButton';
 import { StatsCards } from './StatsCards/StatsCards';
-import { loader as loaderDashboardIndex } from '~/routes/_dashboard._index';
+import { loader as loaderDashboardIndex } from '~/routes/_dashboard+/_index';
 import { FormCardSkeleton } from '../FormBuilder/FormCardSkeleton';
 import { FormCard } from '../FormBuilder/FormCard';
 import { Form } from '@prisma/client';
