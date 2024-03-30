@@ -57,3 +57,12 @@ export async function getForms(userId: string) {
 		},
 	});
 }
+
+export async function GetFormById(userId: string, id: number) {
+	return await db.form.findUnique({
+		where: {
+			userId: userId,
+			id,
+		},
+	});
+}
